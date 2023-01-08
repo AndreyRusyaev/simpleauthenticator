@@ -5,6 +5,34 @@ C# implementation to generate one time passwords for open authentication defined
 
 Compatible with Google/Microsoft Authenticator and other authenticators that supports RFC's.
 
+# Usage
+```
+Description:
+  Generates one time passwords (HOTP and TOTP tokens).
+
+Usage:
+  simpleauthenticator [command] [options]
+
+Options:
+  --version       Show version information
+  -?, -h, --help  Show help and usage information
+
+Commands:
+  totp  Generates time based one time password (TOTP token, RFC 6238).
+  hotp  Generates hmac based one time password (HOTP token, RFC 4226).
+
+totp Command Options:
+  --secretkey-base64 <secretkey-base64>  Base64 encoded secret key.
+  --secretkey-base32 <secretkey-base32>  Base32 encoded secret key.
+  --token-length <token-length>          Token length. Default: 6.
+
+hotp Command Options:
+  --secretkey-base64 <secretkey-base64>  Base64 encoded secret key.
+  --secretkey-base32 <secretkey-base32>  Base32 encoded secret key.
+  --counter <counter>                    8-byte counter value, the moving factor. This counter MUST be synchronized between the HOTP generator (client) and the HOTP validator (server).
+  --token-length <token-length>          Token length. Default: 6.
+```
+
 # Examples
 
 ## TOTP: Generate Time-Based One-Time Password
