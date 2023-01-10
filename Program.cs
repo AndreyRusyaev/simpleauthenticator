@@ -17,29 +17,32 @@ namespace simpleauthenticator
 
         private static Command CreateTotpCommand()
         {
-            var totpCommand = new Command(
+            var command = new Command(
                 "totp",
                 "Generates time based one time password (TOTP token, RFC 6238).");
 
-            var secretKeyInBase64Option = new Option<string?>(
-              name: "--secretkey-base64",
-              description: "Base64 encoded secret key.");
-
-            totpCommand.AddOption(secretKeyInBase64Option);
-
             var secretKeyInBase32Option = new Option<string?>(
               name: "--secretkey-base32",
-              description: "Base32 encoded secret key.");
+              description: "Base32 encoded secret key (whitespaces allowed). Example: 'A5YS 2UP6 K4UF 46GD'.");
+            secretKeyInBase32Option.AddAlias("-s");
+            secretKeyInBase32Option.AddAlias("--secretkey");
 
-            totpCommand.AddOption(secretKeyInBase32Option);
+            command.AddOption(secretKeyInBase32Option);
+
+            var secretKeyInBase64Option = new Option<string?>(
+              name: "--secretkey-base64",
+              description: "Base64 encoded secret key (whitespaces allowed). Example: 'B3Et Uf5X KF54 ww=='.");
+            secretKeyInBase64Option.AddAlias("-s64");
+
+            command.AddOption(secretKeyInBase64Option);
 
             var tokenLengthOption = new Option<int?>(
               name: "--token-length",
               description: "Token length. Default: 6.");
 
-            totpCommand.AddOption(tokenLengthOption);
+            command.AddOption(tokenLengthOption);
 
-            totpCommand.SetHandler(
+            command.SetHandler(
                 (base32EncodedSecretKey, base64EncodedSecretKey, tokenLength) => 
                 {
                     GenerateTotp(base32EncodedSecretKey, base64EncodedSecretKey, tokenLength);
@@ -48,7 +51,7 @@ namespace simpleauthenticator
                 secretKeyInBase64Option,
                 tokenLengthOption);
 
-            return totpCommand;
+            return command;
         }
 
         private static Command CreateHotpCommand()
@@ -57,21 +60,26 @@ namespace simpleauthenticator
                 "hotp",
                 "Generates hmac based one time password (HOTP token, RFC 4226).");
 
-            var secretKeyInBase64Option = new Option<string?>(
-              name: "--secretkey-base64",
-              description: "Base64 encoded secret key.");
-
-            command.AddOption(secretKeyInBase64Option);
-
             var secretKeyInBase32Option = new Option<string?>(
               name: "--secretkey-base32",
-              description: "Base32 encoded secret key.");
+              description: "Base32 encoded secret key (whitespaces allowed). Example: 'A5YS 2UP6 K4UF 46GD'.");
+            secretKeyInBase32Option.AddAlias("-s");
+            secretKeyInBase32Option.AddAlias("--secretkey");
 
             command.AddOption(secretKeyInBase32Option);
+
+            var secretKeyInBase64Option = new Option<string?>(
+              name: "--secretkey-base64",
+              description: "Base64 encoded secret key (whitespaces allowed). Example: 'B3Et Uf5X KF54 ww=='.");
+            secretKeyInBase64Option.AddAlias("-s64");
+
+            command.AddOption(secretKeyInBase64Option);
 
             var counterOption = new Option<long>(
               name: "--counter",
               description: @"8-byte counter value, the moving factor.  This counter MUST be synchronized between the HOTP generator (client) and the HOTP validator (server).");
+            counterOption.IsRequired = true;
+            counterOption.AddAlias("-c");
 
             command.AddOption(counterOption);
 

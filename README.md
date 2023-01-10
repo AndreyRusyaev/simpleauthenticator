@@ -22,57 +22,63 @@ Commands:
   hotp  Generates hmac based one time password (HOTP token, RFC 4226).
 
 totp Command Options:
-  --secretkey-base64 <secretkey-base64>  Base64 encoded secret key.
-  --secretkey-base32 <secretkey-base32>  Base32 encoded secret key.
-  --token-length <token-length>          Token length. Default: 6.
+  -s, --secretkey, --secretkey-base32 <secretkey-base32>  Base32 encoded secret key (whitespaces allowed). Example:
+                                                          'A5YS 2UP6 K4UF 46GD'.
+  -s64, --secretkey-base64 <secretkey-base64>             Base64 encoded secret key (whitespaces allowed). Example:
+                                                          'B3Et Uf5X KF54 ww=='.
+  --token-length <token-length>                           Token length. Default: 6.
 
 hotp Command Options:
-  --secretkey-base64 <secretkey-base64>  Base64 encoded secret key.
-  --secretkey-base32 <secretkey-base32>  Base32 encoded secret key.
-  --counter <counter>                    8-byte counter value, the moving factor. This counter MUST be synchronized between the HOTP generator (client) and the HOTP validator (server).
-  --token-length <token-length>          Token length. Default: 6.
+  -s, --secretkey, --secretkey-base32 <secretkey-base32>  Base32 encoded secret key (whitespaces allowed). Example:
+                                                          'A5YS 2UP6 K4UF 46GD'.
+  -s64, --secretkey-base64 <secretkey-base64>             Base64 encoded secret key (whitespaces allowed). Example:
+                                                          'B3Et Uf5X KF54 ww=='.
+  -c, --counter <counter> (REQUIRED)                      8-byte counter value, the moving factor.  This counter
+                                                          MUST be synchronized between the HOTP generator (client)
+                                                          and the HOTP validator (server).
+  --token-length <token-length>                           Token length. Default: 6.
 ```
 
 # Examples
 
 ## TOTP: Generate Time-Based One-Time Password
-```shell
+``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
 cd simpleauthenticator
-dotnet run totp --secretkey-base32 "C3UWGR2FYYAADZMGGWEWLEHDET6SPMRSKC6IXBPHQDONMJFOYYBQ===="
+dotnet run totp --secretkey "A5YS 2UP6 K4UF 46GD"
 ```
 
 OR
 
-```shell
+``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
 cd simpleauthenticator
-dotnet run totp --secretkey-base64 "CjysLofv+76qUsybRGtj2EbQ3BugswvAIwIPBJyhXJ0="
+dotnet run totp --secretkey-base64 "B3Et Uf5X KF54 ww=="
 ```
 
 Output:
-```shell
+``` shell
 Token: 316788.
 ```
 
 ## HOTP: Generate HMAC-Based One-Time Password
 
-```shell
+``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
 cd simpleauthenticator
-dotnet run hotp --counter 12345 --secretkey-base32 "C3UWGR2FYYAADZMGGWEWLEHDET6SPMRSKC6IXBPHQDONMJFOYYBQ===="
+dotnet run hotp --counter 12345 --secretkey "A5YS 2UP6 K4UF 46GD"
 ```
 
 OR
 
-```shell
+``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
 cd simpleauthenticator
-dotnet run hotp --counter 12345 --secretkey-base64 "CjysLofv+76qUsybRGtj2EbQ3BugswvAIwIPBJyhXJ0="
+dotnet run hotp --counter 12345 --secretkey-base64 "B3Et Uf5X KF54 ww=="
 ```
 
 Output:
-```shell
+``` shell
 Token: 316788.
 ```
 

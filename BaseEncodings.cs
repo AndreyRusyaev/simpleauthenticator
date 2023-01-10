@@ -1,4 +1,6 @@
-﻿namespace simpleauthenticator
+﻿using System.Runtime.Serialization.Json;
+
+namespace simpleauthenticator
 {
     internal static class BaseEncodings
     {
@@ -25,6 +27,12 @@
             for (var sourceIndex = 0; sourceIndex < input.Length; sourceIndex++)
             {
                 char ch = input[sourceIndex];
+                if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n')
+                {
+                    // Skip all whitespaces and line separators
+                    continue;
+                }
+
                 if (!base32Dict.TryGetValue(ch, out int charIndex))
                 {
                     throw new FormatException($"Illegal character at position {sourceIndex}: '{ch}'.");
