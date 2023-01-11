@@ -1,5 +1,5 @@
 ﻿# simpleauthenticator
-C# implementation to generate one time passwords for open authentication defined by standard RFC's:
+Cross-platform C#/.Net implementation to generate one time passwords for open authentication defined by standard RFC's:
 * [HOTP: An HMAC-Based One-Time Password Algorithm](https://www.rfc-editor.org/rfc/rfc4226),
 * [TOTP: Time-Based One-Time Password Algorithm](https://www.rfc-editor.org/rfc/rfc6238)
 
