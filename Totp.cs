@@ -2,27 +2,73 @@
 {
     public sealed class Totp
     {
-        public const int DefaultUnixTimeOffsetInSeconds = 0;
         public const int DefaultTimeStepInSeconds = 30;
+        public const int DefaultTokenLength = 6;
 
-        public static int Generate(byte[] secretKey, int tokenLength)
+        public static int Generate(byte[] secretKey, int tokenLength = DefaultTokenLength)
         {
             return Generate(
                 secretKey,
-                DefaultUnixTimeOffsetInSeconds,
                 DefaultTimeStepInSeconds,
                 tokenLength);
         }
 
         public static int Generate(
             byte[] secretKey,
-            int unixTimeOffsetInSeconds = DefaultUnixTimeOffsetInSeconds,
-            int timeStepInSeconds = DefaultTimeStepInSeconds,
-            int tokenLength = 6)
+            int timeStepInSeconds,
+            int tokenLength = DefaultTokenLength)
         {
-            var currentUnixTimeInSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            return Generate(
+                secretKey,
+                DateTimeOffset.UnixEpoch,
+                timeStepInSeconds,
+                tokenLength);
+        }
 
-            var timeSteps = (long)Math.Floor((currentUnixTimeInSeconds - unixTimeOffsetInSeconds) / (decimal)timeStepInSeconds);
+        public static int Generate(
+            byte[] secretKey,
+            DateTimeOffset initialDateTime,
+            int timeStepInSeconds,
+            int tokenLength = DefaultTokenLength)
+        {
+            return Generate(
+                secretKey,
+                DateTimeOffset.UtcNow,
+                initialDateTime,
+                timeStepInSeconds,
+                tokenLength);
+        }
+
+        internal static int Generate(
+            byte[] secretKey,
+            DateTimeOffset currentDateTime,
+            int tokenLength)
+        {
+            return Generate(
+                secretKey,
+                currentDateTime, 
+                DateTimeOffset.UnixEpoch,
+                DefaultTimeStepInSeconds, 
+                tokenLength);
+        }
+
+        internal static int Generate(
+            byte[] secretKey,
+            DateTimeOffset currentDateTime,
+            DateTimeOffset initialDateTime,
+            int timeStepInSeconds,
+            int tokenLength)
+        {
+            var currentUnixTimeInSeconds = currentDateTime.ToUnixTimeSeconds();
+            var initialUnixTimeInSeconds = initialDateTime.ToUnixTimeSeconds();
+
+            if (currentUnixTimeInSeconds < initialUnixTimeInSeconds)
+            {
+                throw new InvalidOperationException(
+                    $"Current date '{currentDateTime}' is less than initial offset '{initialDateTime}'.");
+            }
+
+            var timeSteps = (long)Math.Floor((currentUnixTimeInSeconds - initialUnixTimeInSeconds) / (decimal)timeStepInSeconds);
 
             return Hotp.Generate(secretKey, timeSteps, tokenLength);
         }
