@@ -41,7 +41,7 @@ dotnet run totp --secretkey "<your base32 encoded secret key>"
 ```
 
 ### All commands and arguments
-``` shell
+```
 Description:
   Generates one time passwords (HOTP and TOTP tokens).
 
