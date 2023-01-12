@@ -5,6 +5,25 @@ Cross-platform C#/.Net implementation to generate one time passwords for open au
 
 Compatible with Google/Microsoft Authenticator and other authenticators that supports corresponding RFC's.
 
+## How to run it
+
+Ensure that .Net 6 or later is installed
+```
+dotnet --version
+```
+
+Clone repository and run `totp` or `hotp` command:
+``` shell
+git clone https://github.com/AndreyRusyaev/simpleauthenticator
+cd simpleauthenticator
+dotnet run totp --secretkey "<your base32 encoded secret key>"
+```
+
+Output:
+```shell
+Token: 123456.
+```
+
 # Prerequisites
 .Net 6.0 or higher.
 
@@ -33,14 +52,6 @@ sudo apt-get install -y dotnet-sdk-7.0
 
 # Usage
 
-Clone repository and run `totp` command:
-``` shell
-git clone https://github.com/AndreyRusyaev/simpleauthenticator
-cd simpleauthenticator
-dotnet run totp --secretkey "<your base32 encoded secret key>"
-```
-
-### All commands and arguments
 ```
 Description:
   Generates one time passwords (HOTP and TOTP tokens).
