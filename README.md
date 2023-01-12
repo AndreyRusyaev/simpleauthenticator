@@ -3,10 +3,45 @@ Cross-platform C#/.Net implementation to generate one time passwords for open au
 * [HOTP: An HMAC-Based One-Time Password Algorithm](https://www.rfc-editor.org/rfc/rfc4226),
 * [TOTP: Time-Based One-Time Password Algorithm](https://www.rfc-editor.org/rfc/rfc6238)
 
-Compatible with Google/Microsoft Authenticator and other authenticators that supports RFC's.
+Compatible with Google/Microsoft Authenticator and other authenticators that supports corresponding RFC's.
+
+# Prerequisites
+.Net 6.0 or higher.
+
+[Install .NET on Windows, Linux, and macOS](https://learn.microsoft.com/en-us/dotnet/core/install/)
+
+### Windows
+``` shell
+winget install Microsoft.DotNet.SDK.7
+```
+
+### MacOS
+``` shell
+brew install dotnet
+```
+
+### Ubuntu
+``` shell
+# Add Microsoft package manager feed
+wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+
+# installation
+sudo apt-get install -y dotnet-sdk-7.0
+```
 
 # Usage
+
+Clone repository and run `totp` command:
+``` shell
+git clone https://github.com/AndreyRusyaev/simpleauthenticator
+cd simpleauthenticator
+dotnet run totp --secretkey "<your base32 encoded secret key>"
 ```
+
+### All commands and arguments
+``` shell
 Description:
   Generates one time passwords (HOTP and TOTP tokens).
 
@@ -41,7 +76,7 @@ hotp Command Options:
 
 # Examples
 
-## TOTP: Generate Time-Based One-Time Password
+## TOTP: Generate time-based one time password
 ``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
 cd simpleauthenticator
@@ -61,7 +96,7 @@ Output:
 Token: 316788.
 ```
 
-## HOTP: Generate HMAC-Based One-Time Password
+## HOTP: Generate HMAC-based one time password
 
 ``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
