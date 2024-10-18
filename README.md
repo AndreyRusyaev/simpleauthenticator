@@ -31,7 +31,7 @@ Token: 123456.
 
 ### Windows
 ``` shell
-winget install Microsoft.DotNet.SDK.7
+winget install Microsoft.DotNet.SDK.8
 ```
 
 ### MacOS
@@ -45,10 +45,10 @@ brew install dotnet
 wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
-sudo apt update
 
 # installation
-sudo apt-get install -y dotnet-sdk-7.0
+sudo apt update
+sudo apt-get install -y dotnet-sdk-8.0
 ```
 
 # Usage
