@@ -16,7 +16,7 @@ Clone repository and run `totp` or `hotp` command:
 ``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
 cd simpleauthenticator
-dotnet run totp --secretkey "<your base32 encoded secret key>"
+dotnet run totp -s "<your base32 encoded secret key>"
 ```
 
 Output:
@@ -27,11 +27,24 @@ Token: 123456 (valid for 25 seconds).
 # Prerequisites
 .Net 6.0 or higher.
 
-[Install .NET on Windows, Linux, and macOS](https://learn.microsoft.com/en-us/dotnet/core/install/)
-
+<details>
+  <summary>HOWTO: Install .NET 8 on Windows, Linux, and macOS</summary>
+  
 ### Windows
 ``` shell
+# run in elevated shell
 winget install Microsoft.DotNet.SDK.8
+```
+
+### Ubuntu
+``` shell
+# Register Microsoft packages feed (https://learn.microsoft.com/en-us/linux/packages)
+wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+
+# installation
+sudo apt update && sudo apt-get install -y dotnet-sdk-8.0
 ```
 
 ### MacOS
@@ -39,17 +52,10 @@ winget install Microsoft.DotNet.SDK.8
 brew install dotnet
 ```
 
-### Ubuntu
-``` shell
-# Add Microsoft package manager feed
-wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb
-rm packages-microsoft-prod.deb
+### See also
+[Install .NET on Windows, Linux, and macOS](https://learn.microsoft.com/en-us/dotnet/core/install/)
 
-# installation
-sudo apt update
-sudo apt-get install -y dotnet-sdk-8.0
-```
+</details>
 
 # Usage
 
