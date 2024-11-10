@@ -5,7 +5,7 @@
         public const int DefaultTimeStepInSeconds = 30;
         public const int DefaultTokenLength = 6;
 
-        public static int Generate(byte[] secretKey, int tokenLength = DefaultTokenLength)
+        public static TotpToken Generate(byte[] secretKey, int tokenLength = DefaultTokenLength)
         {
             return Generate(
                 secretKey,
@@ -13,7 +13,7 @@
                 tokenLength);
         }
 
-        public static int Generate(
+        public static TotpToken Generate(
             byte[] secretKey,
             int timeStepInSeconds,
             int tokenLength = DefaultTokenLength)
@@ -25,7 +25,7 @@
                 tokenLength);
         }
 
-        public static int Generate(
+        public static TotpToken Generate(
             byte[] secretKey,
             DateTimeOffset initialDateTime,
             int timeStepInSeconds,
@@ -39,7 +39,7 @@
                 tokenLength);
         }
 
-        internal static int Generate(
+        internal static TotpToken Generate(
             byte[] secretKey,
             DateTimeOffset currentDateTime,
             int tokenLength)
@@ -52,7 +52,7 @@
                 tokenLength);
         }
 
-        internal static int Generate(
+        internal static TotpToken Generate(
             byte[] secretKey,
             DateTimeOffset currentDateTime,
             DateTimeOffset initialDateTime,
@@ -69,8 +69,11 @@
             }
 
             var timeSteps = (long)Math.Floor((currentUnixTimeInSeconds - initialUnixTimeInSeconds) / (decimal)timeStepInSeconds);
+            var lifeTime = timeStepInSeconds - (int)Math.Floor((currentUnixTimeInSeconds - initialUnixTimeInSeconds) % (decimal)timeStepInSeconds);
 
-            return Hotp.Generate(secretKey, timeSteps, tokenLength);
+            return new TotpToken(
+                Hotp.Generate(secretKey, timeSteps, tokenLength),
+                TimeSpan.FromSeconds(lifeTime));
         }
     }
 }

@@ -2,16 +2,24 @@
 
 namespace simpleauthenticator
 {
+    public enum HmacHashAlgorithm
+    {
+        Md5,
+        Sha1,
+        Sha256,
+        Sha512
+    }
+
     public static class Hotp
     {
         public static int Generate(byte[] secretKey, long counter, int tokenLength = 6)
         {
             var counterBytes = ToBigEndianBytes(counter);
 
-            return (int)Truncate(HMACSHA1.HashData(secretKey, counterBytes), tokenLength);
+            return Generate(secretKey, counterBytes, tokenLength);
         }
 
-        public static int Generate(byte[] secretKey, byte[] counter, int tokenLength = 6)
+        public static int Generate(byte[] secretKey, byte[] counter, int tokenLength = 6, HmacHashAlgorithm hashAlgorithm = HmacHashAlgorithm.Sha1)
         {
             if (counter.Length > 8)
             {
@@ -23,7 +31,31 @@ namespace simpleauthenticator
                 throw new ArgumentOutOfRangeException(nameof(tokenLength), tokenLength, "Token length must be between 1 and 8");
             }
 
-            return (int)Truncate(HMACSHA1.HashData(secretKey, counter), tokenLength);
+            return (int)Truncate(Transform(secretKey, counter, hashAlgorithm), tokenLength);
+        }
+
+        private static byte[] Transform(byte[] key, byte[] data, HmacHashAlgorithm hashFunction)
+        {
+            KeyedHashAlgorithm keyedHashAlgorithm;
+            switch (hashFunction)
+            {
+                case HmacHashAlgorithm.Md5:
+                    keyedHashAlgorithm = new HMACMD5(key);
+                    break;
+                case HmacHashAlgorithm.Sha1:
+                    keyedHashAlgorithm = new HMACSHA1(key);
+                    break;
+                case HmacHashAlgorithm.Sha256:
+                    keyedHashAlgorithm = new HMACSHA256(key);
+                    break;
+                case HmacHashAlgorithm.Sha512:
+                    keyedHashAlgorithm = new HMACSHA512(key);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Algorithm '{hashFunction}' is not supported.");
+            }
+
+            return keyedHashAlgorithm.ComputeHash(data);
         }
 
         private static uint Truncate(byte[] digest, int tokenLength)
@@ -38,7 +70,7 @@ namespace simpleauthenticator
             return token % (uint)Math.Pow(10, tokenLength);
         }
 
-        static byte[] ToBigEndianBytes(long input)
+        private static byte[] ToBigEndianBytes(long input)
         {
             var bytes = new byte[8];
             bytes[0] = (byte)(input >> 56);

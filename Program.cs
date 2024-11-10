@@ -6,7 +6,7 @@ namespace simpleauthenticator
     {
         static int Main(string[] args)
         {
-            RootCommand rootCommand = new RootCommand("Generates one time passwords (HOTP and TOTP tokens).")
+            RootCommand rootCommand = new("Generates one time passwords (HOTP and TOTP tokens).")
             {
                 CreateTotpCommand(),
                 CreateHotpCommand()
@@ -141,9 +141,14 @@ namespace simpleauthenticator
                 return -1;
             }
 
-            var token = Totp.Generate(secretKey, tokenLength ?? 6);
+            var result = Totp.Generate(secretKey, tokenLength ?? 6);
 
-            Console.WriteLine("Token: {0}.", token);
+            Console.WriteLine(
+                "Token: {0} (valid for {1} {2}).", 
+                result.Token.ToString("d" + (tokenLength ?? 6).ToString()),
+                result.LifeTime.TotalSeconds,
+                result.LifeTime.TotalSeconds > 1 ? "seconds" : "second");
+
             return 0;
         }
 
