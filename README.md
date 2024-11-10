@@ -21,7 +21,7 @@ dotnet run totp --secretkey "<your base32 encoded secret key>"
 
 Output:
 ```shell
-Token: 123456.
+Token: 123456 (valid for 25 seconds).
 ```
 
 # Prerequisites
@@ -78,7 +78,7 @@ totp Command Options:
 hotp Command Options:
   -s, --secretkey, --secretkey-base32 <secretkey-base32>  Base32 encoded secret key (whitespaces allowed). Example:
                                                           'A5YS 2UP6 K4UF 46GD'.
-  -s64, --secretkey-base64 <secretkey-base64>             Base64 encoded secret key (whitespaces allowed). Example:
+  -s64, --secretkey-base64 <secretkey-base64>             Base64 encoded secret key (whitespaces allowed, '=' can be omited). Example:
                                                           'B3Et Uf5X KF54 ww=='.
   -c, --counter <counter> (REQUIRED)                      8-byte counter value, the moving factor.  This counter
                                                           MUST be synchronized between the HOTP generator (client)
@@ -105,7 +105,7 @@ dotnet run totp --secretkey-base64 "B3Et Uf5X KF54 ww=="
 
 Output:
 ``` shell
-Token: 316788.
+Token: 316788 (valid for 25 seconds).
 ```
 
 ## HOTP: Generate HMAC-based one time password
