@@ -7,7 +7,7 @@ Compatible with Google/Microsoft Authenticator and other authenticators that sup
 
 ## How to run it
 
-Ensure that .Net 6 or later is installed
+Ensure that .Net 8 or later is installed
 ```
 dotnet --version
 ```
