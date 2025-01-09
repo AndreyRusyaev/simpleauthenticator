@@ -1,78 +1,58 @@
 ﻿namespace simpleauthenticator
 {
+    /// <summary>
+    /// Implements TOTP tokens generation according RFC6238: https://www.rfc-editor.org/rfc/rfc6238.
+    /// </summary>
     public sealed class Totp
     {
         public const int DefaultTimeStepInSeconds = 30;
+
         public const int DefaultTokenLength = 6;
 
-        public static TotpToken Generate(byte[] secretKey, int tokenLength = DefaultTokenLength)
+        public const HmacAlgorithm DefaultHmacAlgorithm = HmacAlgorithm.Sha1;
+
+        public static TotpToken Generate(
+            byte[] secretKey,
+            int tokenLength = DefaultTokenLength,
+            HmacAlgorithm hmacAlgorithm = DefaultHmacAlgorithm)
         {
             return Generate(
                 secretKey,
+                DateTimeOffset.UtcNow - DateTimeOffset.UnixEpoch,
                 DefaultTimeStepInSeconds,
-                tokenLength);
-        }
-
-        public static TotpToken Generate(
-            byte[] secretKey,
-            int timeStepInSeconds,
-            int tokenLength = DefaultTokenLength)
-        {
-            return Generate(
-                secretKey,
-                DateTimeOffset.UnixEpoch,
-                timeStepInSeconds,
-                tokenLength);
+                tokenLength,
+                hmacAlgorithm);
         }
 
         public static TotpToken Generate(
             byte[] secretKey,
             DateTimeOffset initialDateTime,
-            int timeStepInSeconds,
-            int tokenLength = DefaultTokenLength)
+            int tokenLength = DefaultTokenLength,
+            HmacAlgorithm hmacAlgorithm = DefaultHmacAlgorithm)
         {
             return Generate(
                 secretKey,
-                DateTimeOffset.UtcNow,
-                initialDateTime,
-                timeStepInSeconds,
-                tokenLength);
+                initialDateTime.ToUniversalTime() - DateTimeOffset.UnixEpoch,
+                DefaultTimeStepInSeconds,
+                tokenLength,
+                hmacAlgorithm);
         }
 
-        internal static TotpToken Generate(
+        public static TotpToken Generate(
             byte[] secretKey,
-            DateTimeOffset currentDateTime,
-            int tokenLength)
+            TimeSpan timeSpan,
+            int timeStepInSeconds = DefaultTimeStepInSeconds,
+            int tokenLength = DefaultTokenLength,
+            HmacAlgorithm hmacAlgorithm = DefaultHmacAlgorithm)
         {
-            return Generate(
-                secretKey,
-                currentDateTime, 
-                DateTimeOffset.UnixEpoch,
-                DefaultTimeStepInSeconds, 
-                tokenLength);
-        }
-
-        internal static TotpToken Generate(
-            byte[] secretKey,
-            DateTimeOffset currentDateTime,
-            DateTimeOffset initialDateTime,
-            int timeStepInSeconds,
-            int tokenLength)
-        {
-            var currentUnixTimeInSeconds = currentDateTime.ToUnixTimeSeconds();
-            var initialUnixTimeInSeconds = initialDateTime.ToUnixTimeSeconds();
-
-            if (currentUnixTimeInSeconds < initialUnixTimeInSeconds)
-            {
-                throw new InvalidOperationException(
-                    $"Current date '{currentDateTime}' is less than initial offset '{initialDateTime}'.");
-            }
-
-            var timeSteps = (long)Math.Floor((currentUnixTimeInSeconds - initialUnixTimeInSeconds) / (decimal)timeStepInSeconds);
-            var lifeTime = timeStepInSeconds - (int)Math.Floor((currentUnixTimeInSeconds - initialUnixTimeInSeconds) % (decimal)timeStepInSeconds);
+            var timeSteps = (long)Math.Floor(timeSpan.TotalSeconds / timeStepInSeconds);
+            var timeStepRemaining = (int)Math.Floor(timeSpan.TotalSeconds % timeStepInSeconds);
+            
+            var lifeTime = timeStepInSeconds - timeStepRemaining;
+            var hotpToken = Hotp.Generate(secretKey, timeSteps, tokenLength, hmacAlgorithm);
 
             return new TotpToken(
-                Hotp.Generate(secretKey, timeSteps, tokenLength),
+                hotpToken.Value,
                 TimeSpan.FromSeconds(lifeTime));
         }
     }

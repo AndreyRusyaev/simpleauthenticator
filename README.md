@@ -25,7 +25,7 @@ Token: 123456 (valid for 25 seconds).
 ```
 
 # Prerequisites
-.Net 6.0 or higher.
+.Net 8.0 or higher.
 
 <details>
   <summary>HOWTO: Install .NET 8 on Windows, Linux, and macOS</summary>

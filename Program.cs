@@ -42,14 +42,21 @@ namespace simpleauthenticator
 
             command.AddOption(tokenLengthOption);
 
+            var hmacAlgorithmOption = new Option<HmacAlgorithm?>(
+              name: "--hmac",
+              description: "HMAC algorithm to use. Default: SHA1. Allowed values: Md5, Sha1, Sha2_256, Sha2_512, Sha3_256, Sha3_512.");
+
+            command.AddOption(hmacAlgorithmOption);
+
             command.SetHandler(
-                (base32EncodedSecretKey, base64EncodedSecretKey, tokenLength) => 
+                (base32EncodedSecretKey, base64EncodedSecretKey, tokenLength, hmacAlgorithm) => 
                 {
-                    GenerateTotp(base32EncodedSecretKey, base64EncodedSecretKey, tokenLength);
+                    GenerateTotp(base32EncodedSecretKey, base64EncodedSecretKey, tokenLength, hmacAlgorithm);
                 },
                 secretKeyInBase32Option,
                 secretKeyInBase64Option,
-                tokenLengthOption);
+                tokenLengthOption,
+                hmacAlgorithmOption);
 
             return command;
         }
@@ -89,15 +96,22 @@ namespace simpleauthenticator
 
             command.AddOption(tokenLengthOption);
 
+            var hmacAlgorithmOption = new Option<HmacAlgorithm?>(
+              name: "--hmac",
+              description: "HMAC algorithm to use. Default: SHA1. Allowed values: Md5, Sha1, Sha2_256, Sha2_512, Sha3_256, Sha3_512.");
+
+            command.AddOption(hmacAlgorithmOption);
+
             command.SetHandler(
-                (base32EncodedSecretKey, base64EncodedSecretKey, counter, tokenLength) =>
+                (base32EncodedSecretKey, base64EncodedSecretKey, counter, tokenLength, hmacAlgorithm) =>
                 {
-                    GenerateHotp(base32EncodedSecretKey, base64EncodedSecretKey, counter, tokenLength);
+                    GenerateHotp(base32EncodedSecretKey, base64EncodedSecretKey, counter, tokenLength, hmacAlgorithm);
                 },
                 secretKeyInBase32Option,
                 secretKeyInBase64Option,
                 counterOption,
-                tokenLengthOption);
+                tokenLengthOption,
+                hmacAlgorithmOption);
 
             return command;
         }
@@ -105,7 +119,8 @@ namespace simpleauthenticator
         private static int GenerateTotp(
             string? base32EncodedSecretKey,
             string? base64EncodedSecretKey,
-            int? tokenLength)
+            int? tokenLength,
+            HmacAlgorithm? hmacAlgorithm)
         {
             byte[] secretKey;
 
@@ -141,11 +156,11 @@ namespace simpleauthenticator
                 return -1;
             }
 
-            var result = Totp.Generate(secretKey, tokenLength ?? 6);
+            var result = Totp.Generate(secretKey, tokenLength ?? 6, hmacAlgorithm ?? HmacAlgorithm.Sha1);
 
             Console.WriteLine(
                 "Token: {0} (valid for {1} {2}).", 
-                result.Token.ToString("d" + (tokenLength ?? 6).ToString()),
+                result.Value.ToString("d" + (tokenLength ?? 6).ToString()),
                 result.LifeTime.TotalSeconds,
                 result.LifeTime.TotalSeconds > 1 ? "seconds" : "second");
 
@@ -156,7 +171,8 @@ namespace simpleauthenticator
             string? base32EncodedSecretKey,
             string? base64EncodedSecretKey,
             long counter,
-            int? tokenLength)
+            int? tokenLength,
+            HmacAlgorithm? hmacAlgorithm)
         {
             byte[] secretKey;
 
@@ -192,9 +208,9 @@ namespace simpleauthenticator
                 return -1;
             }
 
-            var token = Hotp.Generate(secretKey, counter, tokenLength ?? 6);
+            var token = Hotp.Generate(secretKey, counter, tokenLength ?? 6, hmacAlgorithm ?? HmacAlgorithm.Sha1);
 
-            Console.WriteLine("Token: {0}.", token);
+            Console.WriteLine("Token: {0}.", token.Value);
             return 0;
         }
     }

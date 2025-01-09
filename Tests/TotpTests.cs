@@ -9,17 +9,17 @@ namespace simpleauthenticator.Tests
         public void GenerateBasicTotpToken()
         {
             byte[] secretKey = BaseEncodings.FromBase32String("ABCD EFGH IJKL");
-            var currentTime = 
-                new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            DateTimeOffset initialDateTime = 
+                new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
-            Assert.AreEqual(46176038, Totp.Generate(secretKey, currentTime, tokenLength: 8).Token);
-            Assert.AreEqual(6176038, Totp.Generate(secretKey, currentTime, tokenLength: 7).Token);
-            Assert.AreEqual(176038, Totp.Generate(secretKey, currentTime, tokenLength: 6).Token);
-            Assert.AreEqual(76038, Totp.Generate(secretKey, currentTime, tokenLength: 5).Token);
-            Assert.AreEqual(6038, Totp.Generate(secretKey, currentTime, tokenLength: 4).Token);
-            Assert.AreEqual(38, Totp.Generate(secretKey, currentTime, tokenLength: 3).Token);
-            Assert.AreEqual(38, Totp.Generate(secretKey, currentTime, tokenLength: 2).Token);
-            Assert.AreEqual(8, Totp.Generate(secretKey, currentTime, tokenLength: 1).Token);
+            Assert.AreEqual(88855042, Totp.Generate(secretKey, initialDateTime, tokenLength: 8).Value);
+            Assert.AreEqual(8855042, Totp.Generate(secretKey, initialDateTime, tokenLength: 7).Value);
+            Assert.AreEqual(855042, Totp.Generate(secretKey, initialDateTime, tokenLength: 6).Value);
+            Assert.AreEqual(55042, Totp.Generate(secretKey, initialDateTime, tokenLength: 5).Value);
+            Assert.AreEqual(5042, Totp.Generate(secretKey, initialDateTime, tokenLength: 4).Value);
+            Assert.AreEqual(42, Totp.Generate(secretKey, initialDateTime, tokenLength: 3).Value);
+            Assert.AreEqual(42, Totp.Generate(secretKey, initialDateTime, tokenLength: 2).Value);
+            Assert.AreEqual(2, Totp.Generate(secretKey, initialDateTime, tokenLength: 1).Value);
         }
     }
 }

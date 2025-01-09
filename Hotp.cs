@@ -2,24 +2,32 @@
 
 namespace simpleauthenticator
 {
-    public enum HmacHashAlgorithm
-    {
-        Md5,
-        Sha1,
-        Sha256,
-        Sha512
-    }
 
+    /// <summary>
+    /// Implements HOTP tokens generation according RFC4226: https://www.rfc-editor.org/rfc/rfc4226.
+    /// </summary>
     public static class Hotp
     {
-        public static int Generate(byte[] secretKey, long counter, int tokenLength = 6)
+        public const int DefaultTokenLength = 6;
+
+        public const HmacAlgorithm DefaultHmacAlgorithm = HmacAlgorithm.Sha1;
+
+        public static HotpToken Generate(
+            byte[] secretKey,
+            long counter,
+            int tokenLength = DefaultTokenLength,
+            HmacAlgorithm hashAlgorithm = DefaultHmacAlgorithm)
         {
             var counterBytes = ToBigEndianBytes(counter);
 
-            return Generate(secretKey, counterBytes, tokenLength);
+            return Generate(secretKey, counterBytes, tokenLength, hashAlgorithm);
         }
 
-        public static int Generate(byte[] secretKey, byte[] counter, int tokenLength = 6, HmacHashAlgorithm hashAlgorithm = HmacHashAlgorithm.Sha1)
+        public static HotpToken Generate(
+            byte[] secretKey,
+            byte[] counter,
+            int tokenLength = DefaultTokenLength,
+            HmacAlgorithm hashAlgorithm = DefaultHmacAlgorithm)
         {
             if (counter.Length > 8)
             {
@@ -31,25 +39,34 @@ namespace simpleauthenticator
                 throw new ArgumentOutOfRangeException(nameof(tokenLength), tokenLength, "Token length must be between 1 and 8");
             }
 
-            return (int)Truncate(Transform(secretKey, counter, hashAlgorithm), tokenLength);
+            var transformResult = GenerateDigest(secretKey, counter, hashAlgorithm);
+
+            return new HotpToken(
+                (int)Truncate(transformResult, tokenLength));
         }
 
-        private static byte[] Transform(byte[] key, byte[] data, HmacHashAlgorithm hashFunction)
+        private static byte[] GenerateDigest(byte[] key, byte[] data, HmacAlgorithm hashFunction)
         {
             KeyedHashAlgorithm keyedHashAlgorithm;
             switch (hashFunction)
             {
-                case HmacHashAlgorithm.Md5:
+                case HmacAlgorithm.Md5:
                     keyedHashAlgorithm = new HMACMD5(key);
                     break;
-                case HmacHashAlgorithm.Sha1:
+                case HmacAlgorithm.Sha1:
                     keyedHashAlgorithm = new HMACSHA1(key);
                     break;
-                case HmacHashAlgorithm.Sha256:
+                case HmacAlgorithm.Sha2_256:
                     keyedHashAlgorithm = new HMACSHA256(key);
                     break;
-                case HmacHashAlgorithm.Sha512:
+                case HmacAlgorithm.Sha2_512:
                     keyedHashAlgorithm = new HMACSHA512(key);
+                    break;
+                case HmacAlgorithm.Sha3_256:
+                    keyedHashAlgorithm = new HMACSHA3_256(key);
+                    break;
+                case HmacAlgorithm.Sha3_512:
+                    keyedHashAlgorithm = new HMACSHA3_512(key);
                     break;
                 default:
                     throw new InvalidOperationException($"Algorithm '{hashFunction}' is not supported.");
@@ -60,7 +77,7 @@ namespace simpleauthenticator
 
         private static uint Truncate(byte[] digest, int tokenLength)
         {
-            var offset = digest[19] & 0xf;
+            var offset = digest[digest.Length - 1] & 0xf; // last byte
 
             var token = (uint)((digest[offset] & 0x7f) << 24)
                 | (uint)((digest[offset + 1] & 0xff) << 16)

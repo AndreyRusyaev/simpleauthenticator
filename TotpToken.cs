@@ -1,12 +1,12 @@
 public struct TotpToken
 {
-    public TotpToken(int token, TimeSpan lifeTime)
+    public TotpToken(int tokenValue, TimeSpan lifeTime)
     {
-        Token = token;
+        Value = tokenValue;
         LifeTime = lifeTime;
     }
 
-    public int Token { get; }
+    public int Value { get; }
 
     public TimeSpan LifeTime { get; }
 }
