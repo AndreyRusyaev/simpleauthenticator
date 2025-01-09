@@ -1,60 +1,65 @@
-﻿using System.Text;
+﻿using System.Collections.Immutable;
+using System.Globalization;
 
 namespace simpleauthenticator
 {
     internal static class BaseEncodings
     {
+        private static readonly IReadOnlyDictionary<char, int> Base32Alphabet = BuildAlphabetLookupTable("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567");
+        private static readonly IReadOnlyDictionary<char, int> Base64Alphabet = BuildAlphabetLookupTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+
         /// <summary>
         /// Implement base32 encoding with default alphabet. 
         /// Defined by RFC4448 (https://datatracker.ietf.org/doc/html/rfc4648).
         /// Input is tolerant to character case and allows space characters anywhere (' ', '\r', '\n\, '\t' ) and does not require padding.
-        /// E.g. 'NVSXG43BM5SQ====', 'NVSX G43B M5SQ==' and 'nvsx G43B m5sq' considered as a valid and eqivalent input.
+        /// E.g. 'NVSXG43BM5SQ====', 'NVSX G43B M5SQ==' and 'nvsx G43B m5sq' considered as a valid and equivalent input.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         /// <exception cref="FormatException"></exception>
         public static byte[] FromBase32String(string input)
         {
-            var base32Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-            var base32Dict = new Dictionary<char, int>(base32Alphabet.Length);
-            for(int index = 0; index < base32Alphabet.Length; index++)
-            {
-                base32Dict.Add(base32Alphabet[index], index);
-            }
-
-            StringBuilder builder = new StringBuilder();
+            int filteredLength = 0;
             foreach (var ch in input)
             {
                 if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '=')
                 {
-                    // Skip all whitespaces, line separators and padding
+                    // Skip all whitespaces, line separators and padding symbols
                     continue;
                 }
 
-                builder.Append(char.ToUpper(ch));
+                filteredLength += 1;
             }
 
-            input = builder.ToString();
-            if (input.Length == 0)
+            if (filteredLength == 0)
             {
                 return Array.Empty<byte>();
             }
 
-            var destination = new byte[input.Length * 5 / 8];
+            var destination = new byte[filteredLength * 5 / 8];
             var destinationIndex = 0;
 
             var buffer = 0;
             var bitsLeft = 0;
-            for (var sourceIndex = 0; sourceIndex < input.Length; sourceIndex++)
+            for (var inputIndex = 0; inputIndex < input.Length; inputIndex++)
             {
-                char ch = input[sourceIndex];
-                if (!base32Dict.TryGetValue(ch, out int charIndex))
+                char ch = input[inputIndex];
+
+                if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '=')
                 {
-                    throw new FormatException($"Illegal character at position {sourceIndex}: '{ch}'.");
+                    // Skip all whitespaces, line separators and padding symbols
+                    continue;
+                }
+
+                ch = char.ToUpper(ch, CultureInfo.InvariantCulture);
+
+                if (!Base32Alphabet.TryGetValue(ch, out int alphabetIndex))
+                {
+                    throw new FormatException($"Illegal character at position {inputIndex}: '{ch}'.");
                 }
 
                 buffer <<= 5;
-                buffer |= charIndex & 31;
+                buffer |= alphabetIndex & 31;
                 bitsLeft += 5;
                 if (bitsLeft >= 8)
                 {
@@ -70,49 +75,48 @@ namespace simpleauthenticator
         /// Implement base64 encoding with default alphabet. 
         /// Defined by RFC4448 (https://datatracker.ietf.org/doc/html/rfc4648).
         /// Input allows space characters anywhere (' ', '\r', '\n\, '\t' ) and does not require padding.
-        /// E.g. 'AAAAAAAA=' and 'AAAA AAAA' considered as a valid and eqivalent input.
+        /// E.g. 'AAAAAAAA=' and 'AAAA AAAA' considered as a valid and equivalent input.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         /// <exception cref="FormatException"></exception>
         public static byte[] FromBase64String(string input)
         {
-            var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-            var base64Dict = new Dictionary<char, int>(alphabet.Length);
-            for(int index = 0; index < alphabet.Length; index++)
-            {
-                base64Dict.Add(alphabet[index], index);
-            }
-
-            StringBuilder builder = new StringBuilder();
+            int filteredLength = 0;
             foreach (var ch in input)
             {
                 if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '=')
                 {
-                    // Skip all whitespaces, line separators and padding
+                    // Skip all whitespaces, line separators and padding symbols
                     continue;
                 }
 
-                builder.Append(ch);
+                filteredLength += 1;
             }
 
-            input = builder.ToString();
-            if (input.Length == 0)
+            if (filteredLength == 0)
             {
                 return Array.Empty<byte>();
             }
 
-            var destination = new byte[input.Length * 6 / 8];
+            var destination = new byte[filteredLength * 6 / 8];
             var destinationIndex = 0;
 
             var buffer = 0;
             var bitsLeft = 0;
-            for (var sourceIndex = 0; sourceIndex < input.Length; sourceIndex++)
+            for (var inputIndex = 0; inputIndex < input.Length; inputIndex++)
             {
-                char ch = input[sourceIndex];
-                if (!base64Dict.TryGetValue(ch, out int charIndex))
+                char ch = input[inputIndex];
+
+                if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '=')
                 {
-                    throw new FormatException($"Illegal character at position {sourceIndex}: '{ch}'.");
+                    // Skip all whitespaces, line separators and padding symbols
+                    continue;
+                }
+
+                if (!Base64Alphabet.TryGetValue(ch, out int charIndex))
+                {
+                    throw new FormatException($"Illegal character at position {inputIndex}: '{ch}'.");
                 }
 
                 buffer <<= 6;
@@ -126,6 +130,16 @@ namespace simpleauthenticator
             }
 
             return destination;
+        }
+    
+        private static IReadOnlyDictionary<char, int> BuildAlphabetLookupTable(string alphabet) 
+        {
+            var dict = new Dictionary<char, int>(alphabet.Length);
+            for(int index = 0; index < alphabet.Length; index++)
+            {
+                dict.Add(alphabet[index], index);
+            }
+            return dict;
         }
     }
 }
