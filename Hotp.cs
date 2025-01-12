@@ -2,7 +2,6 @@
 
 namespace simpleauthenticator
 {
-
     /// <summary>
     /// Implements HOTP tokens generation according RFC4226: https://www.rfc-editor.org/rfc/rfc4226.
     /// </summary>

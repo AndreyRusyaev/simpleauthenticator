@@ -48,12 +48,10 @@
             var timeSteps = (long)Math.Floor(timeSpan.TotalSeconds / timeStepInSeconds);
             var timeStepRemaining = (int)Math.Floor(timeSpan.TotalSeconds % timeStepInSeconds);
             
-            var lifeTime = timeStepInSeconds - timeStepRemaining;
             var hotpToken = Hotp.Generate(secretKey, timeSteps, tokenLength, hmacAlgorithm);
+            var lifeTime = TimeSpan.FromSeconds(timeStepInSeconds - timeStepRemaining);
 
-            return new TotpToken(
-                hotpToken.Value,
-                TimeSpan.FromSeconds(lifeTime));
+            return new TotpToken(hotpToken.Value, lifeTime);
         }
     }
 }

@@ -1,9 +1,12 @@
-public struct HotpToken
+namespace simpleauthenticator
 {
-    public HotpToken(int tokenValue)
+    public struct HotpToken
     {
-        this.Value = tokenValue;
-    }
+        public HotpToken(int tokenValue)
+        {
+            this.Value = tokenValue;
+        }
 
-    public int Value { get; }
-} 
+        public int Value { get; }
+    } 
+}

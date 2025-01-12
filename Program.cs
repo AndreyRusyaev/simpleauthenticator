@@ -2,7 +2,7 @@
 
 namespace simpleauthenticator
 {
-    internal class Program
+    internal static class Program
     {
         static int Main(string[] args)
         {
