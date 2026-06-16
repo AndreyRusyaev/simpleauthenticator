@@ -10,7 +10,7 @@ public class TotpTests
     {
         byte[] secretKey = BaseEncodings.FromBase32String("ABCD EFGH IJKL");
         DateTimeOffset initialDateTime = 
-            new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            new(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         Assert.AreEqual(88855042, Totp.Generate(secretKey, initialDateTime, tokenLength: 8).Value);
         Assert.AreEqual(8855042, Totp.Generate(secretKey, initialDateTime, tokenLength: 7).Value);

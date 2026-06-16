@@ -33,7 +33,7 @@ Token: 123456 (valid for 25 seconds).
 ### Windows
 ``` shell
 # run in elevated shell
-winget install Microsoft.DotNet.SDK.8
+winget install Microsoft.DotNet.SDK.10
 ```
 
 ### Ubuntu
@@ -44,7 +44,7 @@ sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 
 # installation
-sudo apt update && sudo apt-get install -y dotnet-sdk-8.0
+sudo apt update && sudo apt-get install -y dotnet-sdk-10.0
 ```
 
 ### MacOS

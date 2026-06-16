@@ -1,111 +1,103 @@
-﻿using System.CommandLine;
-using simpleauthenticator;
+﻿using simpleauthenticator;
 
 RootCommand rootCommand = new("Generates one time passwords (HOTP and TOTP tokens).")
-        {
-            CreateTotpCommand(),
-            CreateHotpCommand()
-        };
+{
+    CreateTotpCommand(),
+    CreateHotpCommand()
+};
 
-return rootCommand.Invoke(args);
+return rootCommand.Parse(args).Invoke();
 
 Command CreateTotpCommand()
 {
-    var command = new Command(
-        "totp",
-        "Generates time based one time password (TOTP token, RFC 6238).");
+    Option<string?> secretKeyInBase32Option = new("--secretkey-base32", "--secretkey", "-s")
+    {
+        Description = "Base32 encoded secret key (whitespaces allowed). Example: 'A5YS 2UP6 K4UF 46GD'."
+    };
 
-    var secretKeyInBase32Option = new Option<string?>(
-      name: "--secretkey-base32",
-      description: "Base32 encoded secret key (whitespaces allowed). Example: 'A5YS 2UP6 K4UF 46GD'.");
-    secretKeyInBase32Option.AddAlias("-s");
-    secretKeyInBase32Option.AddAlias("--secretkey");
+    Option<string?> secretKeyInBase64Option = new("--secretkey-base64", "--secretkey64", "-s64")
+    {
+        Description = "Base64 encoded secret key (whitespaces allowed). Example: 'B3Et Uf5X KF54 ww=='."
+    };
 
-    command.AddOption(secretKeyInBase32Option);
+    Option<int?> tokenLengthOption = new("--token-length", "-l")
+    {
+        Description = "Token length. Default: 6."
+    };
 
-    var secretKeyInBase64Option = new Option<string?>(
-      name: "--secretkey-base64",
-      description: "Base64 encoded secret key (whitespaces allowed). Example: 'B3Et Uf5X KF54 ww=='.");
-    secretKeyInBase64Option.AddAlias("-s64");
+    Option<HmacAlgorithm?> hmacAlgorithmOption = new("--hmac", "-m")
+    {
+        Description = "HMAC algorithm to use. Default: SHA1. Allowed values: Md5, Sha1, Sha2_256, Sha2_512, Sha3_256, Sha3_512."
+    };
 
-    command.AddOption(secretKeyInBase64Option);
-
-    var tokenLengthOption = new Option<int?>(
-      name: "--token-length",
-      description: "Token length. Default: 6.");
-
-    command.AddOption(tokenLengthOption);
-
-    var hmacAlgorithmOption = new Option<HmacAlgorithm?>(
-      name: "--hmac",
-      description: "HMAC algorithm to use. Default: SHA1. Allowed values: Md5, Sha1, Sha2_256, Sha2_512, Sha3_256, Sha3_512.");
-
-    command.AddOption(hmacAlgorithmOption);
-
-    command.SetHandler(
-        (base32EncodedSecretKey, base64EncodedSecretKey, tokenLength, hmacAlgorithm) =>
-        {
-            GenerateTotp(base32EncodedSecretKey, base64EncodedSecretKey, tokenLength, hmacAlgorithm);
-        },
+    var command = new Command("totp", "Generates time based one time password (TOTP token, RFC 6238).")
+    {
         secretKeyInBase32Option,
         secretKeyInBase64Option,
         tokenLengthOption,
-        hmacAlgorithmOption);
+        hmacAlgorithmOption
+    };
+
+    command.SetAction(
+        parseResult =>
+        {
+            return GenerateTotp(
+                parseResult.GetValue(secretKeyInBase32Option),
+                parseResult.GetValue(secretKeyInBase64Option),
+                parseResult.GetValue(tokenLengthOption),
+                parseResult.GetValue(hmacAlgorithmOption));
+        });
 
     return command;
 }
 
 Command CreateHotpCommand()
 {
-    var command = new Command(
-        "hotp",
-        "Generates hmac based one time password (HOTP token, RFC 4226).");
+    Option<string?> secretKeyInBase32Option = new("--secretkey-base32", "--secretkey", "-s")
+    {
+        Description = "Base32 encoded secret key (whitespaces allowed). Example: 'A5YS 2UP6 K4UF 46GD'."
+    };
 
-    var secretKeyInBase32Option = new Option<string?>(
-      name: "--secretkey-base32",
-      description: "Base32 encoded secret key (whitespaces allowed). Example: 'A5YS 2UP6 K4UF 46GD'.");
-    secretKeyInBase32Option.AddAlias("-s");
-    secretKeyInBase32Option.AddAlias("--secretkey");
+    Option<string?> secretKeyInBase64Option = new("--secretkey-base64", "--secretkey64", "-s64")
+    {
+        Description = "Base64 encoded secret key (whitespaces allowed). Example: 'B3Et Uf5X KF54 ww=='."
+    };
 
-    command.AddOption(secretKeyInBase32Option);
+    Option<long> counterOption = new("--counter", "-c")
+    {
+        Description = @"8-byte counter value, the moving factor.  This counter MUST be synchronized between the HOTP generator (client) and the HOTP validator (server).",
+        Required = true
+    };
 
-    var secretKeyInBase64Option = new Option<string?>(
-      name: "--secretkey-base64",
-      description: "Base64 encoded secret key (whitespaces allowed). Example: 'B3Et Uf5X KF54 ww=='.");
-    secretKeyInBase64Option.AddAlias("-s64");
+    Option<int?> tokenLengthOption = new("--token-length", "-l")
+    {
+        Description = "Token length. Default: 6."
+    };
 
-    command.AddOption(secretKeyInBase64Option);
+    Option<HmacAlgorithm?> hmacAlgorithmOption = new("--hmac", "-m")
+    {
+        Description = "HMAC algorithm to use. Default: SHA1. Allowed values: Md5, Sha1, Sha2_256, Sha2_512, Sha3_256, Sha3_512."
+    };
 
-    var counterOption = new Option<long>(
-      name: "--counter",
-      description: @"8-byte counter value, the moving factor.  This counter MUST be synchronized between the HOTP generator (client) and the HOTP validator (server).");
-    counterOption.IsRequired = true;
-    counterOption.AddAlias("-c");
-
-    command.AddOption(counterOption);
-
-    var tokenLengthOption = new Option<int?>(
-      name: "--token-length",
-      description: "Token length. Default: 6.");
-
-    command.AddOption(tokenLengthOption);
-
-    var hmacAlgorithmOption = new Option<HmacAlgorithm?>(
-      name: "--hmac",
-      description: "HMAC algorithm to use. Default: SHA1. Allowed values: Md5, Sha1, Sha2_256, Sha2_512, Sha3_256, Sha3_512.");
-
-    command.AddOption(hmacAlgorithmOption);
-
-    command.SetHandler(
-        (base32EncodedSecretKey, base64EncodedSecretKey, counter, tokenLength, hmacAlgorithm) =>
-        {
-            GenerateHotp(base32EncodedSecretKey, base64EncodedSecretKey, counter, tokenLength, hmacAlgorithm);
-        },
+    var command = new Command("hotp", "Generates hmac based one time password (HOTP token, RFC 4226).")
+    {
         secretKeyInBase32Option,
         secretKeyInBase64Option,
         counterOption,
         tokenLengthOption,
-        hmacAlgorithmOption);
+        hmacAlgorithmOption
+    };
+
+    command.SetAction(
+        parseResult =>
+        {
+            return GenerateHotp(
+                parseResult.GetValue(secretKeyInBase32Option),
+                parseResult.GetValue(secretKeyInBase64Option),
+                parseResult.GetRequiredValue(counterOption),
+                parseResult.GetValue(tokenLengthOption),
+                parseResult.GetValue(hmacAlgorithmOption));
+        });
 
     return command;
 }
@@ -127,7 +119,7 @@ int GenerateTotp(
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Failed to decode secret key from base64: {0}", ex);
+            Console.Error.WriteLine("Failed to decode secret key from base64: {0}", ex);
             return -1;
         }
     }
@@ -140,13 +132,13 @@ int GenerateTotp(
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Failed to decode secret key from base32: {0}.", ex);
+            Console.Error.WriteLine("Failed to decode secret key from base32: {0}.", ex);
             return -1;
         }
     }
     else
     {
-        Console.WriteLine("Secret key is not specified.");
+        Console.Error.WriteLine("Secret key is not specified.");
         return -1;
     }
 
@@ -179,7 +171,7 @@ int GenerateHotp(
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Failed to decode secret key from base64: {0}", ex);
+            Console.Error.WriteLine("Failed to decode secret key from base64: {0}", ex);
             return -1;
         }
     }
@@ -192,13 +184,13 @@ int GenerateHotp(
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Failed to decode secret key from base32: {0}.", ex);
+            Console.Error.WriteLine("Failed to decode secret key from base32: {0}.", ex);
             return -1;
         }
     }
     else
     {
-        Console.WriteLine("Secret key is not specified.");
+        Console.Error.WriteLine("Secret key is not specified.");
         return -1;
     }
 
