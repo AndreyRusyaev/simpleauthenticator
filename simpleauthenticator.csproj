@@ -13,6 +13,18 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>simpleauthenticator</ToolCommandName>
 
+    <Version>1.0.0</Version>
+    <Description>Cross-platform C#/.Net tool to generate one time passwords for open authentication defined by standard RFC's.</Description>
+    <Copyright>Andrey Rusyaev</Copyright>
+    <Authors>Andrey Rusyaev</Authors>
+    <RepositoryUrl>https://github.com/AndreyRusyaev/simpleauthenticator</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>otp totp hotp google-authenticator rfc6238 otp-generator rfc4226 one-time-password totp-generator microsoft-authenticator hotp-generator</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/AndreyRusyaev/simpleauthenticator</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +36,11 @@
 
   <ItemGroup>
     <Using Include="System.CommandLine" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

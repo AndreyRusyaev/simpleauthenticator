@@ -1,5 +1,5 @@
 ﻿# simpleauthenticator
-Cross-platform C#/.Net implementation to generate one time passwords for open authentication defined by standard RFC's:
+Cross-platform C#/.Net tool to generate one time passwords for open authentication defined by standard RFC's:
 * [HOTP: An HMAC-Based One-Time Password Algorithm](https://www.rfc-editor.org/rfc/rfc4226),
 * [TOTP: Time-Based One-Time Password Algorithm](https://www.rfc-editor.org/rfc/rfc6238)
 
@@ -75,21 +75,25 @@ Commands:
   hotp  Generates hmac based one time password (HOTP token, RFC 4226).
 
 totp Command Options:
-  -s, --secretkey, --secretkey-base32 <secretkey-base32>  Base32 encoded secret key (whitespaces allowed). Example:
-                                                          'A5YS 2UP6 K4UF 46GD'.
-  -s64, --secretkey-base64 <secretkey-base64>             Base64 encoded secret key (whitespaces allowed). Example:
-                                                          'B3Et Uf5X KF54 ww=='.
-  --token-length <token-length>                           Token length. Default: 6.
+  -s, --secretkey, --secretkey-base32 <secretkey-base32>      Base32 encoded secret key (whitespaces allowed). 
+                                                              Examples: 'A5YS 2UP6 K4UF 46GD', A5YS2UP6K4UF46GD.
+  -s64, --secretkey-base64, --secretkey64 <secretkey-base64>  Base64 encoded secret key (whitespaces allowed, '=' can be omitted). 
+                                                              Example: 'B3Et Uf5X KF54 ww=='.
+  -l, --token-length <token-length>                           Token length. Default: 6.
+  -m, --hmac <Md5|Sha1|Sha2_256|Sha2_512|Sha3_256|Sha3_512>   HMAC algorithm to use. Default: SHA1. 
+                                                              Allowed values: Md5, Sha1, Sha2_256, Sha2_512, Sha3_256, Sha3_512.
 
 hotp Command Options:
-  -s, --secretkey, --secretkey-base32 <secretkey-base32>  Base32 encoded secret key (whitespaces allowed). Example:
-                                                          'A5YS 2UP6 K4UF 46GD'.
-  -s64, --secretkey-base64 <secretkey-base64>             Base64 encoded secret key (whitespaces allowed, '=' can be omited). Example:
-                                                          'B3Et Uf5X KF54 ww=='.
-  -c, --counter <counter> (REQUIRED)                      8-byte counter value, the moving factor.  This counter
-                                                          MUST be synchronized between the HOTP generator (client)
-                                                          and the HOTP validator (server).
-  --token-length <token-length>                           Token length. Default: 6.
+  -s, --secretkey, --secretkey-base32 <secretkey-base32>      Base32 encoded secret key (whitespaces allowed). 
+                                                              Example: 'A5YS 2UP6 K4UF 46GD'.
+  -s64, --secretkey-base64, --secretkey64 <secretkey-base64>  Base64 encoded secret key (whitespaces allowed, '=' can be omitted). 
+                                                              Example: 'B3Et Uf5X KF54 ww=='.
+  -c, --counter <counter> (REQUIRED)                          8-byte counter value, the moving factor.  
+                                                              This counter MUST be synchronized between the HOTP 
+                                                              generator (client) and the HOTP validator (server).
+  -l, --token-length <token-length>                           Token length. Default: 6.
+  -m, --hmac <Md5|Sha1|Sha2_256|Sha2_512|Sha3_256|Sha3_512>   HMAC algorithm to use. Default: SHA1. 
+                                                              Allowed values: Md5, Sha1, Sha2_256, Sha2_512, Sha3_256, Sha3_512.
 ```
 
 # Examples
@@ -98,7 +102,7 @@ hotp Command Options:
 ``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
 cd simpleauthenticator
-dotnet run totp --secretkey "A5YS 2UP6 K4UF 46GD"
+dotnet run totp -s A5YS2UP6K4UF46GD
 ```
 
 OR
@@ -106,7 +110,7 @@ OR
 ``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
 cd simpleauthenticator
-dotnet run totp --secretkey-base64 "B3Et Uf5X KF54 ww=="
+dotnet run totp -s64 B3EtUf5XKF54ww==
 ```
 
 Output:
@@ -119,7 +123,7 @@ Token: 316788 (valid for 25 seconds).
 ``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
 cd simpleauthenticator
-dotnet run hotp --counter 12345 --secretkey "A5YS 2UP6 K4UF 46GD"
+dotnet run hotp --counter 12345 -s A5YS2UP6K4UF46GD
 ```
 
 OR
@@ -127,7 +131,7 @@ OR
 ``` shell
 git clone https://github.com/AndreyRusyaev/simpleauthenticator
 cd simpleauthenticator
-dotnet run hotp --counter 12345 --secretkey-base64 "B3Et Uf5X KF54 ww=="
+dotnet run hotp --counter 12345 -s64 B3EtUf5XKF54ww
 ```
 
 Output:

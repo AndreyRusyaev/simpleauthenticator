@@ -17,7 +17,7 @@ Command CreateTotpCommand()
 
     Option<string?> secretKeyInBase64Option = new("--secretkey-base64", "--secretkey64", "-s64")
     {
-        Description = "Base64 encoded secret key (whitespaces allowed). Example: 'B3Et Uf5X KF54 ww=='."
+        Description = "Base64 encoded secret key (whitespaces allowed, '=' can be omitted). Example: 'B3Et Uf5X KF54 ww=='."
     };
 
     Option<int?> tokenLengthOption = new("--token-length", "-l")
@@ -60,7 +60,7 @@ Command CreateHotpCommand()
 
     Option<string?> secretKeyInBase64Option = new("--secretkey-base64", "--secretkey64", "-s64")
     {
-        Description = "Base64 encoded secret key (whitespaces allowed). Example: 'B3Et Uf5X KF54 ww=='."
+        Description = "Base64 encoded secret key (whitespaces allowed, '=' can be omitted). Example: 'B3Et Uf5X KF54 ww=='."
     };
 
     Option<long> counterOption = new("--counter", "-c")
