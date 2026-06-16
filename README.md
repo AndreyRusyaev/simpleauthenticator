@@ -7,7 +7,7 @@ Compatible with Google/Microsoft Authenticator and other authenticators that sup
 
 ## How to run it
 
-Ensure that .Net 8 or later is installed
+Ensure that .Net 10.0 or later is installed
 ```
 dotnet --version
 ```
@@ -25,10 +25,10 @@ Token: 123456 (valid for 25 seconds).
 ```
 
 # Prerequisites
-.Net 8.0 or higher.
+.Net 10.0 or higher.
 
 <details>
-  <summary>HOWTO: Install .NET 8 on Windows, Linux, and macOS</summary>
+  <summary>HOWTO: Install .NET 10.0 on Windows, Linux, and macOS</summary>
   
 ### Windows
 ``` shell

@@ -1,15 +1,14 @@
-namespace simpleauthenticator
+namespace simpleauthenticator;
+
+public struct TotpToken
 {
-    public struct TotpToken
+    public TotpToken(int tokenValue, TimeSpan lifeTime)
     {
-        public TotpToken(int tokenValue, TimeSpan lifeTime)
-        {
-            Value = tokenValue;
-            LifeTime = lifeTime;
-        }
-
-        public int Value { get; }
-
-        public TimeSpan LifeTime { get; }
+        Value = tokenValue;
+        LifeTime = lifeTime;
     }
+
+    public int Value { get; }
+
+    public TimeSpan LifeTime { get; }
 }
