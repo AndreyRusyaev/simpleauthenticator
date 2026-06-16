@@ -10,6 +10,9 @@
     <RollForward>Major</RollForward>
     <GenerateProgramFile>false</GenerateProgramFile>
 
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>simpleauthenticator</ToolCommandName>
+
   </PropertyGroup>
 
   <ItemGroup>
